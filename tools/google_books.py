@@ -8,6 +8,9 @@ import os
 from langchain_core.tools import tool
 from pydantic import BaseModel
 from typing import Optional
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class BookSearchInput(BaseModel):

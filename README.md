@@ -34,7 +34,7 @@ cp .env.example .env
 ```
 
 **Required keys:**
-- `OPENAI_API_KEY` — from platform.openai.com
+- `OPENAI_API_KEY` — pass "dummy" because using MN5 local model
 - `TAVILY_API_KEY` — from app.tavily.com (free tier available)
 
 **Optional:**
@@ -62,7 +62,7 @@ book-recommender/
 ├── frontend/
 │   └── app.py          ← Gradio UI
 ├── requirements.txt
-└── .env.example
+└── .env
 ```
 
 ## Extending the Agent

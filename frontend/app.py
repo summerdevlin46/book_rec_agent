@@ -5,11 +5,12 @@ Run with: python frontend/app.py
 
 import sys
 import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 import gradio as gr
 from langchain_core.messages import HumanMessage
-from agent import recommendation_graph, AgentState
+from book_recs.agent.graph import recommendation_graph, AgentState
 
 
 # ── State Management ───────────────────────────────────────────────────────────
@@ -28,6 +29,9 @@ def chat(user_message: str, history: list, agent_state: dict) -> tuple:
     """
     Called on every user message.
     Returns: (updated_history, updated_state, recommendations_html)
+    
+    Gradio 6.0+ expects chat history as a list of dicts with 'role' and 'content'
+    keys, not tuples.
     """
     if not user_message.strip():
         return history, agent_state, ""
@@ -49,8 +53,10 @@ def chat(user_message: str, history: list, agent_state: dict) -> tuple:
                 ai_response = msg.content
                 break
 
-    # Update Gradio chat history
-    history.append((user_message, ai_response))
+    # Update Gradio chat history using the new message dict format.
+    # Gradio 6.0+ expects: {"role": "user"|"assistant", "content": "..."}
+    history.append({"role": "user", "content": user_message})
+    history.append({"role": "assistant", "content": ai_response})
 
     # Build recommendations HTML card display
     recs_html = build_recommendations_html(result.get("recommendations", []))
@@ -109,14 +115,7 @@ EXAMPLE_QUERIES = [
     "Short books I can finish in a weekend — literary fiction",
 ]
 
-with gr.Blocks(
-    title="📚 AI Book Recommender",
-    theme=gr.themes.Soft(primary_hue="violet"),
-    css="""
-    .gradio-container { max-width: 1100px !important; }
-    #chatbot { height: 480px; }
-    """,
-) as demo:
+with gr.Blocks(title="📚 AI Book Recommender") as demo:
     # Header
     gr.Markdown("""
     # 📚 AI Book Recommender
@@ -135,8 +134,7 @@ with gr.Blocks(
             chatbot = gr.Chatbot(
                 elem_id="chatbot",
                 label="Chat",
-                bubble_full_width=False,
-                avatar_images=(None, "https://api.dicebear.com/7.x/bottts/svg?seed=book"),
+                height=480,
             )
             with gr.Row():
                 msg_input = gr.Textbox(
@@ -184,7 +182,9 @@ with gr.Blocks(
 if __name__ == "__main__":
     demo.launch(
         server_name="0.0.0.0",
-        server_port=7860,
+        server_port=7840,
         share=False,           # Set True to get a public Gradio link
         show_error=True,
+        theme=gr.themes.Soft(primary_hue="violet"),
+        css=".gradio-container { max-width: 1100px !important; }",
     )

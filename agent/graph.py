@@ -14,8 +14,8 @@ from langchain_core.messages import SystemMessage, HumanMessage, AIMessage, Tool
 from langgraph.graph import StateGraph, END
 from langgraph.prebuilt import ToolNode
 
-from state import AgentState
-from tools import ALL_TOOLS
+from book_recs.agent.state import AgentState
+from book_recs.tools.tools import ALL_TOOLS
 
 load_dotenv()
 
